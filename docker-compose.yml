@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  web:
+    container_name: radowski.backend
+    image: radowski.backend:v0.1
+    command: python manage.py runserver 0.0.0.0:8000
+    # volumes:
+    #   - .:/code
+    ports:
+      - 8010:8000
