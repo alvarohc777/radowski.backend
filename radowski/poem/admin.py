@@ -32,6 +32,7 @@ class PoemAdmin(admin.ModelAdmin):
         "get_books_list",
     )
     search_fields = ("title",)
+    ordering = ("id",)
     list_filter = (BooksListFilter,)
 
     def get_books_list(self, obj):
@@ -50,6 +51,7 @@ class BookAdmin(admin.ModelAdmin):
         "title",
         "poem_count",
     )
+    ordering = ("id",)
 
     def poem_count(self, obj):
         return obj.poembooklanguage_set.count()
