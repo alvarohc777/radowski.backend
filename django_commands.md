@@ -71,6 +71,32 @@ class PoemAdmin(admin.ModelAdmin):
     search_fields = ("title",)
     list_filter = ("title",)
 
+# Create Schemas
+from poem.models import Poem
+from ninja import Schema
+from ninja.orm import create_schema
+
+PoemBase = create_schema(Poem, fields=["id", "name", "title"])
+
+
+# Create Endpoint
+
+from ninja import NinjaAPI
+
+from poem.models import Poem
+from poem.schema import PoemBase
+from typing import List, Optional
+
+api = NinjaAPI()
+
+@api.get("", response=List[PoemBase], tags=["Poem"])
+def poem(request, nombre: Optional[str] = None):
+    if nombre:
+        return Poem.objects.filter(nombre__icontains=nombre)
+    return Poem.objects.all()
+
+
+
 ```
 
 

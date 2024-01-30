@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "ninja",
     # my apps
-    "poem.apps.PoemConfig",
+    # "poem.apps.PoemConfig",
+    "poem",
 ]
 
 MIDDLEWARE = [
