@@ -8,3 +8,4 @@ class PoemBase(Schema):
     cover_url: str
     languages: List[str] = None
     books: List[str] = None
+    books_ids: List[int] = None

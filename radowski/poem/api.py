@@ -20,13 +20,14 @@ def poem(request, title: Optional[str] = None):
         .annotate(
             language_name=F("poem_book_language__language__name"),
             book_title=F("poem_book_language__book__title"),
+            book_id=F("poem_book_language__book__id"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
             # title=Max("title"),
             languages=ArrayAgg("language_name", distinct=True),
             books=ArrayAgg("book_title", distinct=True),
+            books_ids=ArrayAgg("book_id", distinct=True),
         )
     )
-    print(result)
     return result
