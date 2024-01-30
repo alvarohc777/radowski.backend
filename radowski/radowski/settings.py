@@ -26,6 +26,9 @@ SECRET_KEY = "django-insecure-j^gb8r76ejt-623utha_0tr!s8@os6vk%8kdn49&s+m#7*ruj%
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+# CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:9000"]
 
 
 # Application definition
@@ -38,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "ninja",
+    "corsheaders",
     # my apps
     # "poem.apps.PoemConfig",
     "poem",
@@ -47,6 +51,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",

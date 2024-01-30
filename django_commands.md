@@ -96,6 +96,29 @@ def poem(request, nombre: Optional[str] = None):
     return Poem.objects.all()
 
 
+# CORS HEADER
+pip install django-cors-headers 
+
+
+INSTALLED_APPS = [
+    # ...
+    'corsheaders',
+    # ...
+]
+
+MIDDLEWARE = [
+    # ...
+    'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    # ...
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:9000",
+    # Add other allowed origins as needed
+]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ```
 
