@@ -1,11 +1,11 @@
 from ninja import NinjaAPI
 
 from poem.models import Poem, PoemBookLanguage
-from poem.schema import PoemBase, PoemBookLanguageBase
+from poem.schema import PoemBase
 from typing import List, Optional
 
 # Para hacer agregaciones y aliases
-from django.db.models import F, Max
+from django.db.models import F, Max, Q
 from django.contrib.postgres.aggregates import ArrayAgg
 
 api = NinjaAPI()
@@ -30,4 +30,8 @@ def poem(request, title: Optional[str] = None):
             books_ids=ArrayAgg("book_id", distinct=True),
         )
     )
+    if title:
+        result = result.filter(Q(title__icontains=title) | Q(books__icontains=title))
+
+    print(f"Total responses: {len(result)}")
     return result
