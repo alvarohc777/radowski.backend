@@ -12,7 +12,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 api = NinjaAPI()
 
 
-@api.get("poem/", response=List[PoemBase], tags=["Test"])
+@api.get("poem/", response=List[PoemBase], tags=["Poem"])
 def get_poems(request, title: Optional[str] = None):
     result = (
         Poem.objects.exclude(is_active=False)
@@ -37,7 +37,7 @@ def get_poems(request, title: Optional[str] = None):
 
 
 @api.get("poem/{poem_id}", response=PoemBase, tags=["Poem"])
-def get_poems(request, poem_id: int):
+def get_poem(request, poem_id: int):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
