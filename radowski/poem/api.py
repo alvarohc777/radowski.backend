@@ -36,6 +36,60 @@ def get_poems(request, title: Optional[str] = None):
     return result
 
 
+@api.get("poem/{poem_id}", response=PoemBase, tags=["Poem"])
+def get_poems(request, poem_id: int):
+    result = (
+        Poem.objects.exclude(is_active=False)
+        .annotate(
+            language_name=F("poem_book_language__language__name"),
+            book_title=F("poem_book_language__book__title"),
+            book_id=F("poem_book_language__book__id"),
+        )
+        .values("id", "title", "name", "cover_url")
+        .annotate(
+            languages=ArrayAgg("language_name", distinct=True),
+            books=ArrayAgg("book_title", distinct=True),
+            books_ids=ArrayAgg("book_id", distinct=True),
+        )
+    )
+    result = get_object_or_404(result, id=poem_id)
+    return result
+
+
+@api.get("poem/content/{content_id}", response=ContentBase, tags=["Poem"])
+def get_poem(request, content_id: int):
+    content = Content.objects.values(
+        "id",
+        "title",
+        "name",
+        "body",
+        "img_url",
+        "ig_url",
+        "pages",
+        content_language=F("poem_content_language__language__id"),
+        book_language=F(
+            "poem_content_language__poem__poem_book_language__language__id"
+        ),
+        poem_id=F("poem_content_language__poem__id"),
+        book_id=F("poem_content_language__poem__poem_book_language__book__id"),
+        book=F("poem_content_language__poem__poem_book_language__book"),
+        language_id=F("poem_content_language__language__id"),
+    ).filter(Q(content_language=F("book_language")))
+
+    result = get_object_or_404(content, id=content_id)
+
+    num_pages = result["pages"]
+    if num_pages > 1:
+        result["img_url"] = [
+            result["img_url"].replace(".jpg", f"_p{url+1}.jpg")
+            for url in range(num_pages)
+        ]
+    else:
+        result["img_url"] = [result["img_url"]]
+
+    return result
+
+
 @api.get("book/", response=List[BookBase], tags=["Book"])
 def get_books(request, title: Optional[str] = None):
     result = (
