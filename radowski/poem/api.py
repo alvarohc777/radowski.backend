@@ -57,24 +57,29 @@ def get_poems(request, poem_id: int):
 
 
 @api.get("poem/content/{content_id}", response=ContentBase, tags=["Poem"])
-def get_poem(request, content_id: int):
-    content = Content.objects.values(
-        "id",
-        "title",
-        "name",
-        "body",
-        "img_url",
-        "ig_url",
-        "pages",
-        content_language=F("poem_content_language__language__id"),
-        book_language=F(
-            "poem_content_language__poem__poem_book_language__language__id"
-        ),
-        poem_id=F("poem_content_language__poem__id"),
-        book_id=F("poem_content_language__poem__poem_book_language__book__id"),
-        book=F("poem_content_language__poem__poem_book_language__book"),
-        language_id=F("poem_content_language__language__id"),
-    ).filter(Q(content_language=F("book_language")))
+def get_content(request, content_id: int):
+    content = (
+        Content.objects.values(
+            "id",
+            "title",
+            "name",
+            "body",
+            "img_url",
+            "ig_url",
+            "pages",
+            content_language=F("poem_content_language__language__id"),
+            book_language=F(
+                "poem_content_language__poem__poem_book_language__language__id"
+            ),
+            poem_id=F("poem_content_language__poem__id"),
+            book_id=F("poem_content_language__poem__poem_book_language__book__id"),
+            book=F("poem_content_language__poem__poem_book_language__book"),
+            language_id=F("poem_content_language__language__id"),
+            is_active=F("poem_content_language__poem__is_active"),
+        )
+        .filter(Q(content_language=F("book_language")))
+        .exclude(is_active=False)
+    )
 
     result = get_object_or_404(content, id=content_id)
 
