@@ -19,6 +19,8 @@ class BookBase(Schema):
     pdf_url: str
     cover_url: str
     num_poems: int
+    content_list: List[str] = None
+    content_id: List[int] = None
     language: str
 
 

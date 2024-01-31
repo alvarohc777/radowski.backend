@@ -119,44 +119,26 @@ def get_book(request, book_id: int):
         Book.objects.annotate(
             poem=F("poem_book_language__poem__id"),
             language=F("poem_book_language__language__name"),
+            language_id=F("poem_book_language__language__id"),
+            content_language=F(
+                "poem_book_language__poem__poem_content_language__language__id"
+            ),
+            content_title=F(
+                "poem_book_language__poem__poem_content_language__content__title"
+            ),
+            content_id=F(
+                "poem_book_language__poem__poem_content_language__content__id"
+            ),
         )
         .values("id", "title", "name", "pdf_url", "cover_url", "language")
-        .annotate(num_poems=Count("poem"))
+        .annotate(
+            num_poems=Count("poem"),
+            content_list=ArrayAgg("content_title", distinct=True),
+            content_id=ArrayAgg("content_id", distinct=True),
+        )
+        .filter(Q(language_id=F("content_language")))
     )
+    # print(result)
     book = get_object_or_404(result, id=book_id)
 
     return book
-
-
-@api.get("poem/{poem_id}", response=ContentBase, tags=["Poem"])
-def get_poem(request, poem_id: int):
-    content = Content.objects.values(
-        "id",
-        "title",
-        "name",
-        "body",
-        "img_url",
-        "ig_url",
-        "pages",
-        content_language=F("poem_content_language__language__id"),
-        book_language=F(
-            "poem_content_language__poem__poem_book_language__language__id"
-        ),
-        poem_id=F("poem_content_language__poem__id"),
-        book_id=F("poem_content_language__poem__poem_book_language__book__id"),
-        book=F("poem_content_language__poem__poem_book_language__book"),
-        language_id=F("poem_content_language__language__id"),
-    ).filter(Q(content_language=F("book_language")))
-
-    result = get_object_or_404(content, id=poem_id)
-
-    num_pages = result["pages"]
-    if num_pages > 1:
-        result["img_url"] = [
-            result["img_url"].replace(".jpg", f"_p{url+1}.jpg")
-            for url in range(num_pages)
-        ]
-    else:
-        result["img_url"] = [result["img_url"]]
-
-    return result
