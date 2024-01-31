@@ -74,9 +74,15 @@ class PoemBookLanguage(models.Model):
 
 
 class PoemContentLanguage(models.Model):
-    poem = models.ForeignKey(Poem, models.DO_NOTHING)
-    content = models.ForeignKey(Content, models.DO_NOTHING)
-    language = models.ForeignKey(Language, models.DO_NOTHING)
+    poem = models.ForeignKey(
+        Poem, models.DO_NOTHING, related_name="poem_content_language"
+    )
+    content = models.ForeignKey(
+        Content, models.DO_NOTHING, related_name="poem_content_language"
+    )
+    language = models.ForeignKey(
+        Language, models.DO_NOTHING, related_name="poem_content_language"
+    )
 
     class Meta:
         managed = False

@@ -20,3 +20,16 @@ class BookBase(Schema):
     cover_url: str
     num_poems: int
     language: str
+
+
+class ContentBase(Schema):
+    id: int
+
+    title: str
+    name: str
+    pages: int
+    img_url: List[str]
+    body: str = None
+    poem_id: int
+    book: int = None
+    language_id: int
