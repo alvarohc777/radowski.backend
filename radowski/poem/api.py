@@ -1,4 +1,5 @@
 from ninja import NinjaAPI
+from django.shortcuts import get_object_or_404
 
 from poem.models import Poem, Book
 from poem.schema import PoemBase, BookBase
@@ -35,8 +36,8 @@ def poem(request, title: Optional[str] = None):
     return result
 
 
-@api.get("book/", response=List[BookBase], tags=["Poem"])
-def poem(request, title: Optional[str] = None):
+@api.get("book/", response=List[BookBase], tags=["Book"])
+def get_books(request, title: Optional[str] = None):
     result = (
         Book.objects.annotate(
             poem=F("poem_book_language__poem__id"),
@@ -51,3 +52,18 @@ def poem(request, title: Optional[str] = None):
             | Q(poem_book_language__poem__name__icontains=title)
         )
     return result
+
+
+@api.get("book/{book_id}", response=BookBase, tags=["Book"])
+def get_book(request, book_id: int):
+    result = (
+        Book.objects.annotate(
+            poem=F("poem_book_language__poem__id"),
+            language=F("poem_book_language__language__name"),
+        )
+        .values("id", "title", "name", "pdf_url", "cover_url", "language")
+        .annotate(num_poems=Count("poem"))
+    )
+    book = get_object_or_404(result, id=book_id)
+
+    return book
