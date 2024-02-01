@@ -23,7 +23,6 @@ def get_poems(request, title: Optional[str] = None):
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
-            # title=Max("title"),
             languages=ArrayAgg("language_name", distinct=True),
             books=ArrayAgg("book_title", distinct=True),
             books_ids=ArrayAgg("book_id", distinct=True),
@@ -136,9 +135,7 @@ def get_book(request, book_id: int):
             content_list=ArrayAgg("content_title", distinct=True),
             content_id=ArrayAgg("content_id", distinct=True),
         )
-        .filter(Q(language_id=F("content_language")))
     )
-    # print(result)
     book = get_object_or_404(result, id=book_id)
 
     return book
