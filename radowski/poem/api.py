@@ -17,9 +17,9 @@ def get_poems(request, title: Optional[str] = None):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
-            language_name=F("poem_book_language__language__name"),
-            book_title=F("poem_book_language__book__title"),
-            book_id=F("poem_book_language__book__id"),
+            language_name=F("pbl__language__name"),
+            book_title=F("pbl__book__title"),
+            book_id=F("pbl__book__id"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
@@ -40,9 +40,9 @@ def get_poem(request, poem_id: int):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
-            language_name=F("poem_book_language__language__name"),
-            book_title=F("poem_book_language__book__title"),
-            book_id=F("poem_book_language__book__id"),
+            language_name=F("pbl__language__name"),
+            book_title=F("pbl__book__title"),
+            book_id=F("pbl__book__id"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
@@ -66,15 +66,13 @@ def get_content(request, content_id: int):
             "img_url",
             "ig_url",
             "pages",
-            content_language=F("poem_content_language__language__id"),
-            book_language=F(
-                "poem_content_language__poem__poem_book_language__language__id"
-            ),
-            poem_id=F("poem_content_language__poem__id"),
-            book_id=F("poem_content_language__poem__poem_book_language__book__id"),
-            book=F("poem_content_language__poem__poem_book_language__book"),
-            language_id=F("poem_content_language__language__id"),
-            is_active=F("poem_content_language__poem__is_active"),
+            content_language=F("pcl__language__id"),
+            book_language=F("pcl__poem__pbl__language__id"),
+            poem_id=F("pcl__poem__id"),
+            book_id=F("pcl__poem__pbl__book__id"),
+            book=F("pcl__poem__pbl__book"),
+            language_id=F("pcl__language__id"),
+            is_active=F("pcl__poem__is_active"),
         )
         .filter(Q(content_language=F("book_language")))
         .exclude(is_active=False)
@@ -98,16 +96,15 @@ def get_content(request, content_id: int):
 def get_books(request, title: Optional[str] = None):
     result = (
         Book.objects.annotate(
-            poem=F("poem_book_language__poem__id"),
-            language=F("poem_book_language__language__name"),
+            poem=F("pbl__poem__id"),
+            language=F("pbl__language__name"),
         )
         .values("id", "title", "name", "pdf_url", "cover_url", "language")
         .annotate(num_poems=Count("poem"))
     )
     if title:
         result = result.filter(
-            Q(language__icontains=title)
-            | Q(poem_book_language__poem__name__icontains=title)
+            Q(language__icontains=title) | Q(pbl__poem__name__icontains=title)
         )
     return result
 
@@ -116,18 +113,12 @@ def get_books(request, title: Optional[str] = None):
 def get_book(request, book_id: int):
     result = (
         Book.objects.annotate(
-            poem=F("poem_book_language__poem__id"),
-            language=F("poem_book_language__language__name"),
-            language_id=F("poem_book_language__language__id"),
-            content_language=F(
-                "poem_book_language__poem__poem_content_language__language__id"
-            ),
-            content_title=F(
-                "poem_book_language__poem__poem_content_language__content__title"
-            ),
-            content_id=F(
-                "poem_book_language__poem__poem_content_language__content__id"
-            ),
+            poem=F("pbl__poem__id"),
+            language=F("pbl__language__name"),
+            language_id=F("pbl__language__id"),
+            content_language=F("pbl__poem__pcl__language__id"),
+            content_title=F("pbl__poem__pcl__content__title"),
+            content_id=F("pbl__poem__pcl__content__id"),
         )
         .values("id", "title", "name", "pdf_url", "cover_url", "language")
         .annotate(
