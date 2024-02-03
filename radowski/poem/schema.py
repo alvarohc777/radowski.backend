@@ -7,6 +7,8 @@ class PoemBase(Schema):
     title: str
     name: str
     cover_url: str
+    content: List[str] = None
+    content_id: List[int] = None
     languages: List[str] = None
     books: List[str] = None
     books_ids: List[int] = None

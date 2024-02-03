@@ -43,12 +43,16 @@ def get_poem(request, poem_id: int):
             language_name=F("pbl__language__name"),
             book_title=F("pbl__book__title"),
             book_id=F("pbl__book__id"),
+            content_title=F("pcl__content__title"),
+            content_id=F("pcl__content__id"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
             languages=ArrayAgg("language_name", distinct=True),
             books=ArrayAgg("book_title", distinct=True),
             books_ids=ArrayAgg("book_id", distinct=True),
+            content_id=ArrayAgg("content_id", distinct=True),
+            content=ArrayAgg("content_title", distinct=True),
         )
     )
     result = get_object_or_404(result, id=poem_id)
