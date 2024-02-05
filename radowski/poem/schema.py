@@ -2,16 +2,25 @@ from ninja import Schema
 from typing import List
 
 
+class BookRelated(Schema):
+    id: int
+    title: str
+    language: str
+
+
+class ContentRelated(Schema):
+    id: int
+    title: str
+    language: str
+
+
 class PoemBase(Schema):
     id: int
     title: str
     name: str
     cover_url: str
-    content: List[str] = None
-    content_id: List[int] = None
-    languages: List[str] = None
-    books: List[str] = None
-    books_ids: List[int] = None
+    content: List[ContentRelated] = None
+    books: List[BookRelated] = None
 
 
 class BookBase(Schema):
@@ -21,8 +30,7 @@ class BookBase(Schema):
     pdf_url: str
     cover_url: str
     num_poems: int
-    content_list: List[str] = None
-    content_id: List[int] = None
+    content: List[ContentRelated] = None
     language: str
 
 

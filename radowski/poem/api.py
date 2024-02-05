@@ -8,6 +8,7 @@ from typing import List, Optional
 # Para hacer agregaciones y aliases
 from django.db.models import F, Max, Q, Count
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models.functions import JSONObject
 
 api = NinjaAPI()
 
@@ -17,15 +18,14 @@ def get_poems(request, title: Optional[str] = None):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
-            language_name=F("pbl__language__name"),
             book_title=F("pbl__book__title"),
             book_id=F("pbl__book__id"),
+            book_language=F("pbl__language__name"),
+            book=JSONObject(id="book_id", title="book_title", language="book_language"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
-            languages=ArrayAgg("language_name", distinct=True),
-            books=ArrayAgg("book_title", distinct=True),
-            books_ids=ArrayAgg("book_id", distinct=True),
+            books=ArrayAgg("book", distinct=True),
         )
     )
     if title:
@@ -40,19 +40,21 @@ def get_poem(request, poem_id: int):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
-            language_name=F("pbl__language__name"),
-            book_title=F("pbl__book__title"),
             book_id=F("pbl__book__id"),
-            content_title=F("pcl__content__title"),
+            book_title=F("pbl__book__title"),
+            book_language=F("pbl__language__name"),
             content_id=F("pcl__content__id"),
+            content_title=F("pcl__content__title"),
+            content_language=F("pcl__language__name"),
+            book=JSONObject(id="book_id", title="book_title", language="book_language"),
+            content=JSONObject(
+                id="content_id", title="content_title", language="content_language"
+            ),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
-            languages=ArrayAgg("language_name", distinct=True),
-            books=ArrayAgg("book_title", distinct=True),
-            books_ids=ArrayAgg("book_id", distinct=True),
-            content_id=ArrayAgg("content_id", distinct=True),
-            content=ArrayAgg("content_title", distinct=True),
+            books=ArrayAgg("book", distinct=True),
+            content=ArrayAgg("content", distinct=True),
         )
     )
     result = get_object_or_404(result, id=poem_id)
@@ -119,18 +121,24 @@ def get_book(request, book_id: int):
         Book.objects.annotate(
             poem=F("pbl__poem__id"),
             language=F("pbl__language__name"),
-            language_id=F("pbl__language__id"),
-            content_language=F("pbl__poem__pcl__language__id"),
+            content_language=F("pbl__poem__pcl__language__name"),
             content_title=F("pbl__poem__pcl__content__title"),
             content_id=F("pbl__poem__pcl__content__id"),
+            content=JSONObject(
+                id="content_id", title="content_title", language="content_language"
+            ),
         )
+        .order_by()
         .values("id", "title", "name", "pdf_url", "cover_url", "language")
-        .annotate(
-            num_poems=Count("poem"),
-            content_list=ArrayAgg("content_title", distinct=True),
-            content_id=ArrayAgg("content_id", distinct=True),
-        )
+        .annotate(num_poems=Count("poem"), content=ArrayAgg("content", distinct=True))
     )
     book = get_object_or_404(result, id=book_id)
+
+    book["content"] = [
+        poem for poem in book["content"] if poem["language"] == book["language"]
+    ]
+
+    if not book["content"]:
+        del book["content"]
 
     return book
