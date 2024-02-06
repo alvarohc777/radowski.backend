@@ -5,7 +5,6 @@ from typing import List
 class BookRelated(Schema):
     id: int
     title: str
-    language: str
 
 
 class ContentRelated(Schema):
@@ -19,8 +18,9 @@ class PoemBase(Schema):
     title: str
     name: str
     cover_url: str
-    content: List[ContentRelated] = None
-    books: List[BookRelated] = None
+    content_list: List[ContentRelated] = None
+    book_list: List[BookRelated] = None
+    languages: List[str] = None
 
 
 class BookBase(Schema):
@@ -36,12 +36,14 @@ class BookBase(Schema):
 
 class ContentBase(Schema):
     id: int
-
+    poem_id: int
     title: str
     name: str
-    pages: int
-    img_url: List[str]
-    body: str = None
-    poem_id: int
-    book: int = None
+    body: str
+    ig_url: str
     language_id: int
+    language_name: str
+    is_active: bool
+    pages: int
+    img_urls: List[str]
+    books: List[BookRelated]

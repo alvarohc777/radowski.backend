@@ -18,20 +18,26 @@ def get_poems(request, title: Optional[str] = None):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
-            book_title=F("pbl__book__title"),
-            book_id=F("pbl__book__id"),
-            book_language=F("pbl__language__name"),
-            book=JSONObject(id="book_id", title="book_title", language="book_language"),
+            content_id=F("content__id"),
+            content_title=F("content__title"),
+            content_language=F("content__language__name"),
+            content_list=JSONObject(
+                id="content_id", title="content_title", language="content_language"
+            ),
+            book_id=F("content__book_content__book__id"),
+            book_title=F("content__book_content__book__title"),
+            book_list=JSONObject(id="book_id", title="book_title"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
-            books=ArrayAgg("book", distinct=True),
+            content_list=ArrayAgg("content_list", distinct=True),
+            book_list=ArrayAgg("book_list", distinct=True),
+            languages=ArrayAgg("content_language", distinct=True),
         )
     )
     if title:
-        result = result.filter(Q(title__icontains=title) | Q(books__icontains=title))
+        result = result.filter(Q(title__icontains=title))
 
-    print(f"Total responses: {len(result)}")
     return result
 
 
@@ -40,21 +46,21 @@ def get_poem(request, poem_id: int):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
-            book_id=F("pbl__book__id"),
-            book_title=F("pbl__book__title"),
-            book_language=F("pbl__language__name"),
-            content_id=F("pcl__content__id"),
-            content_title=F("pcl__content__title"),
-            content_language=F("pcl__language__name"),
-            book=JSONObject(id="book_id", title="book_title", language="book_language"),
-            content=JSONObject(
+            content_id=F("content__id"),
+            content_title=F("content__title"),
+            content_language=F("content__language__name"),
+            content_list=JSONObject(
                 id="content_id", title="content_title", language="content_language"
             ),
+            book_id=F("content__book_content__book__id"),
+            book_title=F("content__book_content__book__title"),
+            book_list=JSONObject(id="book_id", title="book_title"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
-            books=ArrayAgg("book", distinct=True),
-            content=ArrayAgg("content", distinct=True),
+            content_list=ArrayAgg("content_list", distinct=True),
+            book_list=ArrayAgg("book_list", distinct=True),
+            languages=ArrayAgg("content_language", distinct=True),
         )
     )
     result = get_object_or_404(result, id=poem_id)
@@ -63,37 +69,33 @@ def get_poem(request, poem_id: int):
 
 @api.get("poem/content/{content_id}", response=ContentBase, tags=["Poem"])
 def get_content(request, content_id: int):
-    content = (
-        Content.objects.values(
+    result = (
+        Content.objects.annotate(
+            img_url=F("content_image__img_url"),
+            book_id=F("book_content__book__id"),
+            book_title=F("book_content__book__title"),
+            book=JSONObject(id="book_id", title="book_title"),
+        )
+        .values(
             "id",
+            "poem_id",
             "title",
             "name",
             "body",
-            "img_url",
             "ig_url",
-            "pages",
-            content_language=F("pcl__language__id"),
-            book_language=F("pcl__poem__pbl__language__id"),
-            poem_id=F("pcl__poem__id"),
-            book_id=F("pcl__poem__pbl__book__id"),
-            book=F("pcl__poem__pbl__book"),
-            language_id=F("pcl__language__id"),
-            is_active=F("pcl__poem__is_active"),
+            "language_id",
+            language_name=F("language__name"),
+            is_active=F("poem__is_active"),
         )
-        .filter(Q(content_language=F("book_language")))
+        .annotate(
+            books=ArrayAgg("book", distinct=True),
+            img_urls=ArrayAgg("img_url", distinct=True),
+            pages=Count("img_url", distinct=True),
+        )
         .exclude(is_active=False)
     )
 
-    result = get_object_or_404(content, id=content_id)
-
-    num_pages = result["pages"]
-    if num_pages > 1:
-        result["img_url"] = [
-            result["img_url"].replace(".jpg", f"_p{url+1}.jpg")
-            for url in range(num_pages)
-        ]
-    else:
-        result["img_url"] = [result["img_url"]]
+    result = get_object_or_404(result, id=content_id)
 
     return result
 
