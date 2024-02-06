@@ -112,17 +112,11 @@ def get_books(request, title: Optional[str] = None):
             language=F("book_content__content__language__name"),
             language_id=F("book_content__content__language__id"),
             language_list=JSONObject(id="language_id", name="language"),
-            content_id=F("book_content__content__id"),
-            content_title=F("book_content__content__title"),
-            content=JSONObject(
-                id="content_id", title="content_title", language="language"
-            ),
         )
         .values("id", "title", "name", "pdf_url", "cover_url")
         .annotate(
             num_poems=Count("poem"),
             language_list=ArrayAgg("language_list", distinct=True),
-            content=ArrayAgg("content", distinct=True),
         )
     )
     if title:
@@ -138,12 +132,9 @@ def get_book(request, book_id: int):
             poem=F("book_content__content__poem"),
             language=F("book_content__content__language__name"),
             language_id=F("book_content__content__language__id"),
-            language_list=JSONObject(id="language_id", name="language"),
             content_id=F("book_content__content__id"),
             content_title=F("book_content__content__title"),
-            content=JSONObject(
-                id="content_id", title="content_title", language="language"
-            ),
+            content_language=F("book_content__content__language__name"),
         )
         .values(
             "id",
@@ -154,10 +145,34 @@ def get_book(request, book_id: int):
         )
         .annotate(
             num_poems=Count("poem"),
-            language_list=ArrayAgg("language_list", distinct=True),
-            content=ArrayAgg("content", distinct=True),
+            language_list=ArrayAgg(
+                JSONObject(id="language_id", name="language"), distinct=True
+            ),
+            content=ArrayAgg(
+                JSONObject(
+                    language="content_language",
+                    content=JSONObject(
+                        id="content_id",
+                        title="content_title",
+                    ),
+                ),
+                distinct=True,
+            ),
         )
     )
     book = get_object_or_404(result, id=book_id)
 
+    # Process the result to group poems by language
+    grouped_content = []
+    for language_info in book["language_list"]:
+        language_content = [
+            content["content"]
+            for content in book["content"]
+            if content["language"] == language_info["name"]
+        ]
+        grouped_content.append(
+            {"language": language_info["name"], "content": language_content}
+        )
+
+    book["content"] = grouped_content
     return book
