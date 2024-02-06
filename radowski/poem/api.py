@@ -26,7 +26,9 @@ def get_poems(request, title: Optional[str] = None):
             ),
             book_id=F("content__book_content__book__id"),
             book_title=F("content__book_content__book__title"),
-            book_list=JSONObject(id="book_id", title="book_title"),
+            book_list=JSONObject(
+                id="book_id", title="book_title", language="content_language"
+            ),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
@@ -54,7 +56,9 @@ def get_poem(request, poem_id: int):
             ),
             book_id=F("content__book_content__book__id"),
             book_title=F("content__book_content__book__title"),
-            book_list=JSONObject(id="book_id", title="book_title"),
+            book_list=JSONObject(
+                id="book_id", title="book_title", language="content_language"
+            ),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
@@ -105,12 +109,14 @@ def get_books(request, title: Optional[str] = None):
     result = (
         Book.objects.annotate(
             poem=F("book_content__content__poem"),
-            content_id=F("book_content__content__id"),
-            content_title=F("book_content__content__title"),
-            content=JSONObject(id="content_id", title="content_title"),
             language=F("book_content__content__language__name"),
             language_id=F("book_content__content__language__id"),
             language_list=JSONObject(id="language_id", name="language"),
+            content_id=F("book_content__content__id"),
+            content_title=F("book_content__content__title"),
+            content=JSONObject(
+                id="content_id", title="content_title", language="language"
+            ),
         )
         .values("id", "title", "name", "pdf_url", "cover_url")
         .annotate(
@@ -130,12 +136,14 @@ def get_book(request, book_id: int):
     result = (
         Book.objects.annotate(
             poem=F("book_content__content__poem"),
-            content_id=F("book_content__content__id"),
-            content_title=F("book_content__content__title"),
-            content=JSONObject(id="content_id", title="content_title"),
             language=F("book_content__content__language__name"),
             language_id=F("book_content__content__language__id"),
             language_list=JSONObject(id="language_id", name="language"),
+            content_id=F("book_content__content__id"),
+            content_title=F("book_content__content__title"),
+            content=JSONObject(
+                id="content_id", title="content_title", language="language"
+            ),
         )
         .values(
             "id",
