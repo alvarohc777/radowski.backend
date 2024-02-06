@@ -40,8 +40,8 @@ class BookBase(Schema):
     pdf_url: str
     cover_url: str
     num_poems: int
-    content: List[LanguageContent] = None
     language_list: List[Language] = None
+    content: List[LanguageContent] = None
 
 
 class ContentBase(Schema):

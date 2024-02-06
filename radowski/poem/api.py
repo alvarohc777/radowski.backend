@@ -26,9 +26,7 @@ def get_poems(request, title: Optional[str] = None):
             ),
             book_id=F("content__book_content__book__id"),
             book_title=F("content__book_content__book__title"),
-            book_list=JSONObject(
-                id="book_id", title="book_title", language="content_language"
-            ),
+            book_list=JSONObject(id="book_id", title="book_title"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
@@ -56,9 +54,7 @@ def get_poem(request, poem_id: int):
             ),
             book_id=F("content__book_content__book__id"),
             book_title=F("content__book_content__book__title"),
-            book_list=JSONObject(
-                id="book_id", title="book_title", language="content_language"
-            ),
+            book_list=JSONObject(id="book_id", title="book_title"),
         )
         .values("id", "title", "name", "cover_url")
         .annotate(
