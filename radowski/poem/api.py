@@ -104,16 +104,24 @@ def get_content(request, content_id: int):
 def get_books(request, title: Optional[str] = None):
     result = (
         Book.objects.annotate(
-            poem=F("pbl__poem__id"),
-            language=F("pbl__language__name"),
+            poem=F("book_content__content__poem"),
+            content_id=F("book_content__content__id"),
+            content_title=F("book_content__content__title"),
+            content=JSONObject(id="content_id", title="content_title"),
+            language=F("book_content__content__language__name"),
+            language_id=F("book_content__content__language__id"),
+            language_list=JSONObject(id="language_id", name="language"),
         )
-        .values("id", "title", "name", "pdf_url", "cover_url", "language")
-        .annotate(num_poems=Count("poem"))
+        .values("id", "title", "name", "pdf_url", "cover_url")
+        .annotate(
+            num_poems=Count("poem"),
+            language_list=ArrayAgg("language_list", distinct=True),
+            content=ArrayAgg("content", distinct=True),
+        )
     )
     if title:
-        result = result.filter(
-            Q(language__icontains=title) | Q(pbl__poem__name__icontains=title)
-        )
+        result = result.filter(Q(title__icontains=title))
+
     return result
 
 
@@ -121,26 +129,27 @@ def get_books(request, title: Optional[str] = None):
 def get_book(request, book_id: int):
     result = (
         Book.objects.annotate(
-            poem=F("pbl__poem__id"),
-            language=F("pbl__language__name"),
-            content_language=F("pbl__poem__pcl__language__name"),
-            content_title=F("pbl__poem__pcl__content__title"),
-            content_id=F("pbl__poem__pcl__content__id"),
-            content=JSONObject(
-                id="content_id", title="content_title", language="content_language"
-            ),
+            poem=F("book_content__content__poem"),
+            content_id=F("book_content__content__id"),
+            content_title=F("book_content__content__title"),
+            content=JSONObject(id="content_id", title="content_title"),
+            language=F("book_content__content__language__name"),
+            language_id=F("book_content__content__language__id"),
+            language_list=JSONObject(id="language_id", name="language"),
         )
-        .order_by()
-        .values("id", "title", "name", "pdf_url", "cover_url", "language")
-        .annotate(num_poems=Count("poem"), content=ArrayAgg("content", distinct=True))
+        .values(
+            "id",
+            "title",
+            "name",
+            "pdf_url",
+            "cover_url",
+        )
+        .annotate(
+            num_poems=Count("poem"),
+            language_list=ArrayAgg("language_list", distinct=True),
+            content=ArrayAgg("content", distinct=True),
+        )
     )
     book = get_object_or_404(result, id=book_id)
-
-    book["content"] = [
-        poem for poem in book["content"] if poem["language"] == book["language"]
-    ]
-
-    if not book["content"]:
-        del book["content"]
 
     return book

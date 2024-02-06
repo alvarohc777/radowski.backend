@@ -10,7 +10,7 @@ class BookRelated(Schema):
 class ContentRelated(Schema):
     id: int
     title: str
-    language: str
+    language: str = None
 
 
 class PoemBase(Schema):
@@ -23,6 +23,11 @@ class PoemBase(Schema):
     languages: List[str] = None
 
 
+class Language(Schema):
+    id: int
+    name: str
+
+
 class BookBase(Schema):
     id: int
     title: str
@@ -30,8 +35,8 @@ class BookBase(Schema):
     pdf_url: str
     cover_url: str
     num_poems: int
+    language_list: List[Language]
     content: List[ContentRelated] = None
-    language: str
 
 
 class ContentBase(Schema):
