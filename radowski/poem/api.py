@@ -14,7 +14,7 @@ api = NinjaAPI()
 
 
 @api.get("poem/", response=List[PoemBase], tags=["Poem"])
-def get_poems(request, title: Optional[str] = None):
+def get_poems(request, title: Optional[str] = None, book: Optional[str] = None):
     result = (
         Poem.objects.exclude(is_active=False)
         .annotate(
@@ -37,6 +37,9 @@ def get_poems(request, title: Optional[str] = None):
     )
     if title:
         result = result.filter(Q(title__icontains=title))
+
+    if book:
+        result = result.filter(Q(book_title__exact=book))
 
     return result
 
@@ -84,6 +87,7 @@ def get_content(request, content_id: int):
             "body",
             "ig_url",
             "language_id",
+            "cover_url",
             language_name=F("language__name"),
             is_active=F("poem__is_active"),
         )

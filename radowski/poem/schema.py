@@ -50,10 +50,11 @@ class ContentBase(Schema):
     title: str
     name: str
     body: str
-    ig_url: str
     language_id: int
     language_name: str
     is_active: bool
     pages: int
+    ig_url: str
+    cover_url: str
     img_urls: List[str]
     books: List[BookRelated]
