@@ -56,5 +56,5 @@ class ContentBase(Schema):
     pages: int
     ig_url: str
     cover_url: str
-    img_urls: List[str]
+    img_urls: List[str] = None
     books: List[BookRelated]

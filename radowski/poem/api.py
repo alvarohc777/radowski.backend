@@ -6,9 +6,9 @@ from poem.schema import PoemBase, BookBase, ContentBase
 from typing import List, Optional
 
 # Para hacer agregaciones y aliases
-from django.db.models import F, Max, Q, Count
+from django.db.models import F, Q, Value, Count
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models.functions import JSONObject
+from django.db.models.functions import JSONObject, Coalesce
 
 api = NinjaAPI()
 
@@ -93,7 +93,7 @@ def get_content(request, content_id: int):
         )
         .annotate(
             books=ArrayAgg("book", distinct=True),
-            img_urls=ArrayAgg("img_url", distinct=True),
+            img_urls=ArrayAgg(Coalesce("img_url", Value("")), distinct=True),
             pages=Count("img_url", distinct=True),
         )
         .exclude(is_active=False)
