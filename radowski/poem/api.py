@@ -34,6 +34,7 @@ def get_poems(request, title: Optional[str] = None, book: Optional[str] = None):
             book_list=ArrayAgg("book_list", distinct=True),
             languages=ArrayAgg("content_language", distinct=True),
         )
+        .order_by("title")
     )
     if title:
         result = result.filter(Q(title__icontains=title))
