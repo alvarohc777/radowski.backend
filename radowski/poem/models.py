@@ -37,6 +37,7 @@ class Content(models.Model):
     poem = models.ForeignKey("Poem", models.DO_NOTHING, blank=True, null=True)
     name = models.CharField(max_length=35)
     title = models.CharField(max_length=35)
+    dedication = models.CharField(max_length=35, blank=True, null=True)
     body = models.CharField(max_length=2500)
     cover_url = models.CharField(max_length=100)
     ig_url = models.CharField(max_length=100, blank=True, null=True)

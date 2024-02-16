@@ -1,5 +1,5 @@
 from ninja import Schema
-from typing import List
+from typing import List, Optional
 
 
 class BookRelated(Schema):
@@ -48,6 +48,7 @@ class ContentBase(Schema):
     id: int
     poem_id: int
     title: str
+    dedication: Optional[str] = None
     name: str
     body: str
     language_id: int

@@ -85,6 +85,7 @@ def get_content(request, content_id: int):
             "poem_id",
             "title",
             "name",
+            "dedication",
             "body",
             "ig_url",
             "language_id",
