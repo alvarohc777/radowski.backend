@@ -26,9 +26,9 @@ SECRET_KEY = "django-insecure-j^gb8r76ejt-623utha_0tr!s8@os6vk%8kdn49&s+m#7*ruj%
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:9000"]
+# CORS_ALLOWED_ORIGINS = ["http://localhost:9000"]
 
 
 # Application definition
@@ -93,7 +93,7 @@ WSGI_APPLICATION = "radowski.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "radowski_dev",
+        "NAME": "radowski_dev2",
         "USER": "alvarohc777",
         "PASSWORD": "rada-app#1",
         "HOST": "radowski.postgres.database.azure.com",
