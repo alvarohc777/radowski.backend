@@ -93,10 +93,10 @@ WSGI_APPLICATION = "radowski.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "radowski_dev2",
+        "NAME": "radowski_dev",
         "USER": "alvarohc777",
-        "PASSWORD": "rada-app#1",
-        "HOST": "radowski.postgres.database.azure.com",
+        "PASSWORD": "finale-app#1",
+        "HOST": "finale-dev-app.postgres.database.azure.com",
         "PORT": "5432",
     }
 }
