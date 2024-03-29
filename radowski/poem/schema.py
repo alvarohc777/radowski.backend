@@ -14,6 +14,7 @@ class ContentRelated(Schema):
 
 
 class LanguageContent(Schema):
+    language_id: int
     language: str
     content: List[BookRelated]
 

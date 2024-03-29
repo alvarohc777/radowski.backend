@@ -173,7 +173,11 @@ def get_book(request, book_id: int):
             if content["language"] == language_info["name"]
         ]
         grouped_content.append(
-            {"language": language_info["name"], "content": language_content}
+            {
+                "language": language_info["name"],
+                "content": language_content,
+                "language_id": language_info["id"],
+            }
         )
 
     book["content"] = grouped_content
