@@ -117,7 +117,7 @@ def get_books(request, title: Optional[str] = None):
         )
         .values("id", "title", "name", "pdf_url", "cover_url")
         .annotate(
-            num_poems=Count("poem"),
+            num_poems=Count("poem", filter=Q(language_id__exact=1)),
             language_list=ArrayAgg("language_list", distinct=True),
         )
     )
