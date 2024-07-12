@@ -5,4 +5,6 @@ WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 COPY ./radowski/ /code/
-# ENTRYPOINT [ "/bin/sh" ]
+RUN mkdir static
+RUN python manage.py collectstatic --noinput
+

@@ -8,6 +8,7 @@ Django==4.2.9
 django-cors-headers==4.3.1
 django-ninja==1.1.0
 executing==2.0.1
+gunicorn==22.0.0
 jedi==0.19.1
 matplotlib-inline==0.1.6
 mypy-extensions==1.0.0

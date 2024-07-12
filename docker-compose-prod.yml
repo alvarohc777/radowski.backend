@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  backend:
+    container_name: backend
+    build: ./BACKEND
+
+    command: gunicorn -b 0.0.0.0:8000 radowski.wsgi
+    volumes:
+      - static_volume:/static
+    ports:
+      - 8000:8000
+    environment:
+      - is_prod=True
+      - POSTGRES_NAME=
+      - POSTGRES_USER=
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST=
+      - SECRET_KEY=
+    develop:
+      watch:
+        - action: rebuild
+          path: ./BACKEND
+
+  proxy:
+    build:
+      context: ./PROXY
+      target: dev
+    container_name: proxy
+    volumes:
+      - static_volume:/static
+    ports:
+      - "80:80"
+    develop:
+      watch:
+        - action: rebuild
+          path: PROXY/
+
+volumes:
+  static_volume:
+
+

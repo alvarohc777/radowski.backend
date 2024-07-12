@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,15 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-j^gb8r76ejt-623utha_0tr!s8@os6vk%8kdn49&s+m#7*ruj%"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+IS_PROD = os.environ.get("is_prod", "") == "True"
+DEBUG = IS_PROD
+
 
 ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_ALLOW_ALL = True
-
-# CORS_ALLOWED_ORIGINS = ["http://localhost:9000"]
 
 
 # Application definition
@@ -42,8 +43,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "ninja",
     "corsheaders",
-    # my apps
-    # "poem.apps.PoemConfig",
     "poem",
 ]
 
@@ -82,21 +81,14 @@ WSGI_APPLICATION = "radowski.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "radowski_dev",
-        "USER": "alvarohc777",
-        "PASSWORD": "finale-app#1",
-        "HOST": "finale-dev-app.postgres.database.azure.com",
+        "NAME": os.environ.get("POSTGRES_NAME"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": os.environ.get("POSTGRES_HOST"),
         "PORT": "5432",
     }
 }
@@ -136,6 +128,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, "/static")
 STATIC_URL = "static/"
 
 # Default primary key field type
