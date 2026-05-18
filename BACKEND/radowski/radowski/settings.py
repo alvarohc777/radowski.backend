@@ -25,11 +25,29 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 IS_PROD = os.environ.get("is_prod", "") == "True"
-DEBUG = IS_PROD
+DEBUG = not IS_PROD
 
 
-ALLOWED_HOSTS = ["*"]
-CORS_ORIGIN_ALLOW_ALL = True
+# if IS_PROD:
+#     ALLOWED_HOSTS = ["radowski.azurewebsites.net"]
+#     CORS_ORIGIN_ALLOW_ALL = False
+#     # Add your frontend domain here if applicable:
+#     CORS_ALLOWED_ORIGINS = [
+#         "https://radowski.azurewebsites.net",
+#     ]
+# else:
+#     ALLOWED_HOSTS = ["*"]
+#     CORS_ORIGIN_ALLOW_ALL = True
+
+
+if IS_PROD:
+    ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", None).split(",")
+    CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", None).split(",")
+    CORS_ORIGIN_ALLOW_ALL = False
+else:
+    ALLOWED_HOSTS = ["*"]
+    CORS_ORIGIN_ALLOW_ALL = True
+
 
 
 # Application definition
@@ -89,7 +107,7 @@ DATABASES = {
         "USER": os.environ.get("POSTGRES_USER"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
         "HOST": os.environ.get("POSTGRES_HOST"),
-        "PORT": "5432",
+        "PORT": os.environ.get("POSTGRES_PORT"),
     }
 }
 
